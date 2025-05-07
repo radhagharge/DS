@@ -1,0 +1,201 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Node {
+public:
+    string keyword;
+    string meaning;
+    Node* left;
+    Node* right;
+
+    Node(string k, string m) {
+        keyword = k;
+        meaning = m;
+        left = right = nullptr;
+    }
+};
+
+class Dictionary {
+private:
+    Node* root;
+
+    Node* insert(Node* root, string key, string meaning) {
+        if (root == nullptr) {
+            return new Node(key, meaning);
+        }
+
+        if (key < root->keyword) {
+            root->left = insert(root->left, key, meaning);
+        } else if (key > root->keyword) {
+            root->right = insert(root->right, key, meaning);
+        } else {
+            cout << "Keyword already exists. Use update option.\n";
+        }
+        return root;
+    }
+
+    Node* findMin(Node* root) {
+        while (root->left != nullptr)
+            root = root->left;
+        return root;
+    }
+
+    Node* deleteNode(Node* root, string key) {
+        if (root == nullptr) {
+            cout << "Keyword not found.\n";
+            return nullptr;
+        }
+
+        if (key < root->keyword) {
+            root->left = deleteNode(root->left, key);
+        } else if (key > root->keyword) {
+            root->right = deleteNode(root->right, key);
+        } else {
+            // Node with one or no child
+            if (root->left == nullptr) {
+                Node* temp = root->right;
+                delete root;
+                return temp;
+            } else if (root->right == nullptr) {
+                Node* temp = root->left;
+                delete root;
+                return temp;
+            }
+
+            // Node with two children
+            Node* temp = findMin(root->right);
+            root->keyword = temp->keyword;
+            root->meaning = temp->meaning;
+            root->right = deleteNode(root->right, temp->keyword);
+        }
+        return root;
+    }
+
+    void updateMeaning(Node* root, string key, string newMeaning) {
+        if (root == nullptr) {
+            cout << "Keyword not found.\n";
+            return;
+        }
+
+        if (key < root->keyword) {
+            updateMeaning(root->left, key, newMeaning);
+        } else if (key > root->keyword) {
+            updateMeaning(root->right, key, newMeaning);
+        } else {
+            root->meaning = newMeaning;
+            cout << "Meaning updated.\n";
+        }
+    }
+
+    void inOrder(Node* root) {
+        if (root != nullptr) {
+            inOrder(root->left);
+            cout << root->keyword << " : " << root->meaning << endl;
+            inOrder(root->right);
+        }
+    }
+
+    void reverseInOrder(Node* root) {
+        if (root != nullptr) {
+            reverseInOrder(root->right);
+            cout << root->keyword << " : " << root->meaning << endl;
+            reverseInOrder(root->left);
+        }
+    }
+
+    int maxComparisons(Node* root) {
+        if (root == nullptr)
+            return 0;
+
+        int left = maxComparisons(root->left);
+        int right = maxComparisons(root->right);
+
+        return 1 + (left > right ? left : right);
+    }
+
+public:
+    Dictionary() {
+        root = nullptr;
+    }
+
+    void addKeyword(string key, string meaning) {
+        root = insert(root, key, meaning);
+    }
+
+    void deleteKeyword(string key) {
+        root = deleteNode(root, key);
+    }
+
+    void updateKeyword(string key, string newMeaning) {
+        updateMeaning(root, key, newMeaning);
+    }
+
+    void displayAscending() {
+        cout << "\nDictionary in Ascending Order:\n";
+        inOrder(root);
+    }
+
+    void displayDescending() {
+        cout << "\nDictionary in Descending Order:\n";
+        reverseInOrder(root);
+    }
+
+    void showMaxComparisons() {
+        int maxCmp = maxComparisons(root);
+        cout << "Maximum comparisons required to find a keyword: " << maxCmp << endl;
+    }
+};
+
+int main() {
+    Dictionary dict;
+    int choice;
+    string key, meaning;
+
+    do {
+        cout << "\n--- Dictionary Menu ---\n";
+        cout << "1. Add Keyword\n2. Delete Keyword\n3. Update Meaning\n4. Display Ascending\n";
+        cout << "5. Display Descending\n6. Show Max Comparisons\n7. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cin.ignore();
+
+        switch (choice) {
+            case 1:
+                cout << "Enter keyword: ";
+                getline(cin, key);
+                cout << "Enter meaning: ";
+                getline(cin, meaning);
+                dict.addKeyword(key, meaning);
+                break;
+            case 2:
+                cout << "Enter keyword to delete: ";
+                getline(cin, key);
+                dict.deleteKeyword(key);
+                break;
+            case 3:
+                cout << "Enter keyword to update: ";
+                getline(cin, key);
+                cout << "Enter new meaning: ";
+                getline(cin, meaning);
+                dict.updateKeyword(key, meaning);
+                break;
+            case 4:
+                dict.displayAscending();
+                break;
+            case 5:
+                dict.displayDescending();
+                break;
+            case 6:
+                dict.showMaxComparisons();
+                break;
+            case 7:
+                cout << "Exiting program.\n";
+                break;
+            default:
+                cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 7);
+
+    return 0;
+}
