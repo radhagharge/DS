@@ -1,0 +1,202 @@
+//============================================================================
+// Name        : assg.cpp
+// Author      :
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <iostream>
+using namespace std;
+
+class Node
+{
+	string key;
+	string value;
+	Node* next;
+
+	friend class Dict;
+
+};
+
+class Dict
+{
+	Node** table;
+	int tablesize;
+
+	int hash(string key)
+	{
+		int sum=0;
+		for(char c:key)
+		{
+			sum+=int(c);
+		}
+		return sum%tablesize;
+	}
+
+	Node* findll(Node* head,string key)
+	{
+		Node* curr=head;
+		while(curr!=nullptr)
+		{
+			if(curr->key==key)
+			{
+				return curr;
+			}
+			curr=curr->next;
+		}
+		return nullptr;
+	}
+
+	void insertll(Node* &head, string key, string value)
+	{
+		if(findll(head,key))
+		{
+			cout<<"Duplicate"<<endl;
+			return;
+		}
+		Node* newnode= new Node();
+		newnode->key=key;
+		newnode->value=value;
+		newnode->next=head;
+		head=newnode;
+	}
+
+	void deletell(Node* &head, string key)
+	{
+		if(!head)
+		{
+			cout<<"Doesnt exist"<<endl;
+			return;
+		}
+		Node* curr=head;
+		Node* prev=nullptr;
+		while(curr)
+		{
+			if(curr->key==key)
+			{
+				if(prev==nullptr)
+				{
+					head=curr->next;
+				}
+				else
+				{
+					prev->next=curr->next;
+				}
+				delete curr;
+				cout<<"key "<<key<<"deleted"<<endl;
+				return;
+			}
+			prev=curr;
+			curr=curr->next;
+		}
+	}
+
+    void printLL(Node* head) {
+        Node* current = head;
+        while (current) {
+            cout << "-> [" << current->key << ":" << current->value << "] ";
+            current = current->next;
+        }
+    }
+public:
+    Dict(int size)
+    {
+    	tablesize=size;
+    	table= new Node*[tablesize];
+    	for(int i=0;i<tablesize;i++)
+    	{
+    		table[i]=nullptr;
+    	}
+    }
+    void insert(string key,string value)
+    {
+    	int index=hash(key);
+    	insertll(table[index],key,value);
+    }
+
+    void search(string key)
+    {
+    	int index=hash(key);
+    	Node* temp=findll(table[index],key);
+    	if(temp)
+    	{
+    		cout<<"Found at index "<< index<<" "<<" ";
+    		printLL(table[index]);
+    	}
+    	else
+    	{
+    		cout<<"not found"<<endl;
+    	}
+    }
+
+    void del(string key)
+    {
+    	int index=hash(key);
+    	deletell(table[index],key);
+    }
+
+    void display()
+    {
+    	for(int i=0;i<tablesize;i++)
+    	{
+    		cout<<i<<" ";
+    		printLL(table[i]);
+    		cout<<endl;
+    	}
+    }
+};
+int main()
+{
+	Dict dt(10);
+	int choice;
+	string key,value;
+    do {
+        cout << "\n🔘 MENU\n";
+        cout << "1. Insert (key, value)\n";
+        cout << "2. Search by key\n";
+        cout << "3. Delete by key\n";
+        cout << "4. Display Dictionary\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        switch(choice)
+        {
+        case 1:
+        {
+            cout << "Enter key: ";
+            cin >> key;
+            cout << "Enter value: ";
+            cin >> value;
+            dt.insert(key, value);
+            break;
+        }
+        case 2:
+        {
+            cout << "Enter key to search: ";
+            cin >> key;
+            dt.search(key);
+            break;
+        }
+        case 3:
+        {
+            cout << "Enter key to search: ";
+            cin >> key;
+            dt.search(key);
+            break;
+        }
+        case 4:
+        {
+        	dt.display();
+        	break;
+        }
+        case 5:
+        {
+        	cout<<"ok"<<endl;
+        	break;
+        }
+        }
+    }while(choice!=5);
+    return 0;
+}
+
