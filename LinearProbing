@@ -1,0 +1,165 @@
+#include <iostream>
+using namespace std;
+
+const int TABLE_SIZE = 10;
+
+class Client {
+public:
+    string name;
+    long long phone;
+
+    Client() {
+        name = "";
+        phone = -1;
+    }
+};
+
+class HashTable {
+private:
+    Client table[TABLE_SIZE];
+
+public:
+    int comparisons;
+
+    HashTable() {
+        comparisons = 0;
+    }
+
+    int hashFunction(long long phone) {
+        return phone % TABLE_SIZE;
+    }
+
+    // Insert using linear probing without replacement
+    void insertWithoutReplacement(string name, long long phone) {
+        int index = hashFunction(phone);
+        int i = 0;
+        while (i < TABLE_SIZE) {
+            int newIndex = (index + i) % TABLE_SIZE;
+            if (table[newIndex].phone == -1) {
+                table[newIndex].name = name;
+                table[newIndex].phone = phone;
+                return;
+            }
+            i++;
+        }
+        cout << "Hash table is full. Cannot insert " << name << endl;
+    }
+
+    // Insert using linear probing with replacement
+    void insertWithReplacement(string name, long long phone) {
+        int index = hashFunction(phone);
+
+        if (table[index].phone == -1) {
+            table[index].name = name;
+            table[index].phone = phone;
+            return;
+        }
+
+        int existingHash = hashFunction(table[index].phone);
+        if (existingHash == index) {
+            // Same cluster, just linear probe
+            int i = 1;
+            while (i < TABLE_SIZE) {
+                int newIndex = (index + i) % TABLE_SIZE;
+                if (table[newIndex].phone == -1) {
+                    table[newIndex].name = name;
+                    table[newIndex].phone = phone;
+                    return;
+                }
+                i++;
+            }
+        } else {
+            // Replacement needed
+            string tempName = table[index].name;
+            long long tempPhone = table[index].phone;
+
+            table[index].name = name;
+            table[index].phone = phone;
+
+            // Re-insert displaced entry
+            insertWithReplacement(tempName, tempPhone);
+        }
+    }
+
+    // Search and count comparisons
+    int search(long long phone) {
+        comparisons = 0;
+        int index = hashFunction(phone);
+        int i = 0;
+        while (i < TABLE_SIZE) {
+            int newIndex = (index + i) % TABLE_SIZE;
+            comparisons++;
+            if (table[newIndex].phone == phone) {
+                return newIndex;
+            }
+            if (table[newIndex].phone == -1) {
+                break; // Not found
+            }
+            i++;
+        }
+        return -1; // Not found
+    }
+
+    void display() {
+        cout << "Index\tPhone\t\tName\n";
+        for (int i = 0; i < TABLE_SIZE; i++) {
+            cout << i << "\t";
+            if (table[i].phone != -1)
+                cout << table[i].phone << "\t" << table[i].name << endl;
+            else
+                cout << "EMPTY\n";
+        }
+    }
+};
+
+int main() {
+    HashTable htWithout, htWith;
+    int n;
+    cout << "Enter number of clients: ";
+    cin >> n;
+
+    string name;
+    long long phone;
+
+    cout << "\n--- Inserting using Linear Probing WITHOUT Replacement ---\n";
+    for (int i = 0; i < n; i++) {
+        cout << "Enter name and phone number: ";
+        cin >> name >> phone;
+        htWithout.insertWithoutReplacement(name, phone);
+    }
+
+    htWithout.display();
+
+    cout << "\n--- Inserting using Linear Probing WITH Replacement ---\n";
+    for (int i = 0; i < n; i++) {
+        cout << "Enter name and phone number: ";
+        cin >> name >> phone;
+        htWith.insertWithReplacement(name, phone);
+    }
+
+    htWith.display();
+
+    // Search comparisons
+    cout << "\nEnter phone number to search: ";
+    cin >> phone;
+
+    int pos1 = htWithout.search(phone);
+    cout << "Search WITHOUT Replacement: ";
+    if (pos1 != -1)
+        cout << "Found at index " << pos1;
+    else
+        cout << "Not found";
+    cout << " | Comparisons: " << htWithout.comparisons << endl;
+
+    int pos2 = htWith.search(phone);
+    cout << "Search WITH Replacement: ";
+    if (pos2 != -1)
+        cout << "Found at index " << pos2;
+    else
+        cout << "Not found";
+    cout << " | Comparisons: " << htWith.comparisons << endl;
+
+    return 0;
+}
+
+
