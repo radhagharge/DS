@@ -1,0 +1,171 @@
+#include<iostream>
+#include<fstream>
+#define MAX 10
+using namespace std;
+class Student
+{
+	public:
+	int roll;
+	string name;
+	string div;
+	string address;
+	Student()
+	{
+		roll = 0;
+		name = "";
+		div = "";
+		address = "";
+	}
+	void scan()
+	{
+		cout<<"\nEnter name = ";
+		getline(cin,name);
+		cout<<"\nEnter roll number = ";
+		cin>>roll;
+		cin.ignore(1);
+		cout<<"\nEnter div = ";
+		getline(cin,div);
+		cout<<"\nEnter Address = ";
+		getline(cin,address);
+	}
+	void show()
+	{
+		cout<<"\nName = "<<name<<"\tRoll No. = "<<roll<<"\tDivision = "<<div<<"\tAddress = "<<address;
+	}
+};
+fstream& operator<<(fstream &fobj,Student &std)
+{
+	fobj<<std.name<<endl;
+	fobj<<std.roll<<endl;
+	fobj<<std.div<<endl;
+	fobj<<std.address<<endl;
+	return fobj;
+}
+fstream& operator>>(fstream& fobj,Student &std)
+{
+	fobj>>std.name;
+	fobj>>std.roll;
+	fobj>>std.div;
+	fobj>>std.address;
+	return fobj;
+}
+void display(fstream &fobj)
+{
+	Student std;
+	while(1)
+	{
+		fobj>>std;
+		if(fobj.eof())
+		{
+			break;
+		}
+		std.show();
+	}
+}
+void search(fstream &fobj)
+{
+	string key;
+	cout<<"\nEnter name to search = ";
+	getline(cin,key);
+	int flag = 0;
+	Student std;
+	while(1)
+	{
+		fobj>>std;
+		if(fobj.eof())
+		{
+			break;
+		}
+		if(std.name==key)
+		{
+			std.show();
+			return;
+		}
+	}
+	cout<<"\nNo such student found";
+}
+void del(fstream &fobj,char *path)
+{
+	string key;
+	cout<<"\nEnter name to delete = ";
+	getline(cin,key);
+	fobj.open(path,ios::in);
+	Student std,arr[MAX];
+	int i =0,c=0;
+	while(1)
+	{
+		fobj>>std;
+		if(fobj.eof())
+		{
+			break;
+		}
+		if(std.name!=key)
+		{
+			arr[i] = std;
+			i++;
+			c++;
+		}
+	}
+	fobj.close();
+	fobj.open(path,ios::out);
+	for(i=0;i<c;i++)
+	{
+		fobj<<arr[i];
+	}
+	fobj.close();
+}
+int main()
+{
+	char path[] = "D:\\koushiki\\deld\\xyz.txt";
+	fstream fobj;
+	//fobj.open(path,ios::out);
+	if(fobj.fail())
+	{
+		cout<<"\nError in connecting file";
+		return 0;
+	}
+	cout<<"\nSuccessfully connected file";
+	Student s1;
+	Student std;
+	int choice;
+	while(1)
+	{
+		cout<<"\n1 - add a record \n2 - display \n3 - search a student \n4 - delete a record \n5 - exit = ";
+		cin>>choice;
+		switch(choice)
+		{
+			case 1:
+					cin.ignore(1);
+					fobj.open(path,ios::app);
+					if(fobj.fail())
+					{
+						cout<<"\nError in connecting file";
+						return 0;
+					}
+					cout<<"\nSuccessfully connected file";
+					s1.scan();
+					fobj<<s1;	
+					fobj.close();					
+					break;
+			case 2:
+					fobj.open(path,ios::in);
+					display(fobj);
+					fobj.close();
+					break;
+			case 3:
+					fobj.open(path,ios::in);
+					cin.ignore(1);
+					search(fobj);
+					fobj.close();
+					break;
+			case 4:
+					cin.ignore(1);
+					del(fobj,path);
+					break;
+			case 5:
+					return 0;
+		}
+	}
+}
+
+
