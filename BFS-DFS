@@ -1,0 +1,223 @@
+#include <iostream> 
+using namespace std; 
+#define MAX 10 
+ 
+class Queue { 
+ string data[MAX]; 
+ int front, rear; 
+public: 
+ Queue() { 
+  front = -1; 
+  rear = -1; 
+ } 
+ int empty() { 
+  return (rear == -1); 
+ } 
+ void enqueue(string s) { 
+  if (empty()) front = 0; 
+  if (rear < MAX - 1) { 
+   data[++rear] = s; 
+  } 
+ } 
+ string dequeue() { 
+  if (empty()) return ""; 
+  string s = data[front]; 
+  for (int i = front; i < rear; i++) { 
+   data[i] = data[i + 1]; 
+  } 
+  rear--; 
+  if (rear < front) front = rear = -1; 
+  return s; 
+ } 
+}; 
+ 
+class Stack { 
+ string data[MAX]; 
+ int top; 
+public: 
+ Stack() { 
+  top = -1; 
+ } 
+ int empty() { 
+  return (top == -1); 
+ } 
+ void push(string x) { 
+  if (top < MAX - 1) { 
+   data[++top] = x; 
+  } 
+ } 
+ string pop() { 
+  if (empty()) return ""; 
+  return data[top--]; 
+ } 
+}; 
+ 
+class Node { 
+public: 
+ string data; 
+ Node* next; 
+ Node* down; 
+ Node(string x) { 
+  data = x; 
+  next = NULL; 
+  down = NULL; 
+ } 
+}; 
+ 
+class ADL { 
+ Node* head; 
+public: 
+ ADL() { 
+  head = NULL; 
+ } 
+ void addatend(string x) { 
+  Node* p = new Node(x); 
+  if (head == NULL) { 
+   head = p; 
+   return; 
+  } 
+  Node* q = head; 
+  while (q->down != NULL) { 
+   q = q->down; 
+  } 
+  q->down = p; 
+ } 
+ void create() { 
+  int n; 
+  string x; 
+  cout << "\nEnter number of vertices = "; 
+  cin >> n; 
+  cin.ignore(1); 
+  for (int i = 1; i <= n; i++) { 
+   cout << "\nEnter the " << i << " vertex = "; 
+   getline(cin, x); 
+   addatend(x); 
+  } 
+  Node* temp = head; 
+  while (temp != NULL) { 
+   cout << "\nEnter the number of edges for " << temp->data << " vertex = "; 
+   cin >> n; 
+   cin.ignore(1); 
+   for (int i = 1; i <= n; i++) { 
+    cout << "\nEnter edge = "; 
+    getline(cin, x); 
+    Node* p = temp; 
+    while (p->next != NULL) { 
+     p = p->next; 
+    } 
+    p->next = new Node(x); 
+   } 
+   temp = temp->down; 
+  } 
+ } 
+ 
+ void show() { 
+  Node* p = head; 
+  while (p != NULL) { 
+   Node* q = p->next; 
+   cout << p->data << " ------> "; 
+   while (q != NULL) { 
+    cout << q->data; 
+    if (q->next != NULL) cout << " ------> "; 
+    q = q->next; 
+   } 
+   cout << endl; 
+   p = p->down; 
+  } 
+ } 
+ 
+ bool isVisited(string visited[], int count, string key) { 
+  for (int i = 0; i < count; i++) { 
+   if (visited[i] == key) return true; 
+  } 
+  return false; 
+ } 
+ 
+ void BFS() { 
+  if (head == NULL) { 
+   cout << "\nEmpty"; 
+   return; 
+  } 
+ 
+  Queue que; 
+  string visited[MAX]; 
+  int visitCount = 0; 
+ 
+  Node* start = head; 
+  que.enqueue(start->data); 
+  visited[visitCount++] = start->data; 
+  cout << start->data << " "; 
+ 
+  while (!que.empty()) { 
+   string current = que.dequeue(); 
+ 
+   Node* p = head; 
+   while (p != NULL && p->data != current) { 
+    p = p->down; 
+   } 
+   if (p == NULL) continue; 
+ 
+   Node* q = p->next; 
+   while (q != NULL) { 
+    if (!isVisited(visited, visitCount, q->data)) { 
+     que.enqueue(q->data); 
+     visited[visitCount++] = q->data; 
+     cout << q->data << " "; 
+    } 
+    q = q->next; 
+   } 
+  } 
+ } 
+ 
+ void DFS() { 
+  if (head == NULL) { 
+   cout << "\nEmpty"; 
+   return; 
+  } 
+ 
+  Stack stk; 
+  string visited[MAX]; 
+  int visitCount = 0; 
+ 
+  Node* start = head; 
+  stk.push(start->data); 
+  visited[visitCount++] = start->data; 
+  cout << start->data << " "; 
+ 
+  while (!stk.empty()) { 
+   string top = stk.pop(); 
+ 
+   Node* p = head; 
+   while (p != NULL && p->data != top) { 
+    p = p->down; 
+   } 
+   if (p == NULL) continue; 
+ 
+   Node* q = p->next; 
+   while (q != NULL) { 
+    if (!isVisited(visited, visitCount, q->data)) { 
+     stk.push(top); // resume current node later 
+     stk.push(q->data); // explore new node 
+     visited[visitCount++] = q->data; 
+     cout << q->data << " "; 
+     break; // go deeper 
+    } 
+    q = q->next; 
+   } 
+  } 
+ } 
+}; 
+ 
+int main() { 
+ ADL list; 
+ list.create(); 
+ cout << "\nThe adjacency list is -\n"; 
+ list.show(); 
+ 
+ cout << "\nBFS Traversal = "; 
+ list.BFS(); 
+ 
+ cout << "\nDFS Traversal = "; 
+list.DFS(); 
+return 0; 
+} 
