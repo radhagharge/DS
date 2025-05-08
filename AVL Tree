@@ -1,0 +1,190 @@
+/*A Dictionary stores keywords and its meanings. Provide facility for adding new key-
+words. Provide facility to display whole data sorted in ascending/ Descending order.
+Also find how many maximum comparisons may require for finding any keyword.
+Use Height balance tree and find the complexity for finding a keyword*/
+
+#include <iostream>
+using namespace std;
+
+class Node
+{
+public:
+	Node *left;
+	int data;
+	string value;
+	int height;
+	Node *right;
+	Node(int x,string v)
+	{
+		data = x;
+		value = v;
+		height = 1;
+		left = NULL;
+		right = NULL;
+	}
+};
+class AVL
+{
+
+public:
+	Node *root;
+	AVL()
+	{
+		root = NULL;
+	}
+	int height(Node *p,int h)
+	{
+		if(p==NULL)
+		{
+			return h;
+		}
+		int a = height(p->left,h+1);
+		int b = height(p->right,h+1);
+		h = a>=b?a:b;
+		return h;
+	}
+	int balance_factor(Node *q)
+	{
+		if(q==NULL)
+		{
+			return 0;
+		}
+		int hl = height(q->left,0);
+		int rl = height(q->right,0);
+		return hl-rl;
+	}
+	Node *rotateright(Node *p)
+	{
+		Node *q = p->left;
+		p->left = q->right;
+		q->right = p;
+		return q;
+	}
+	Node *rotateleft(Node *p)
+	{
+		Node *q = p->right;
+		p->right = q->left;
+		q->left = p;
+		return q;
+	}
+	Node *leftright(Node *p)
+	{
+		p->left = rotateleft(p->left);
+		p =rotateright(p);
+		return p;
+	}
+	Node *rightleft(Node *p)
+	{
+		p->right = rotateright(p->right);
+		p = rotateleft(p);
+		return p;
+	}
+	Node* insert(Node *q,Node *p)
+	{
+		if(q==NULL)
+		{
+			q = p;
+			return q;
+		}
+		if(p->data < q->data)
+		{
+			q->left = insert(q->left,p);
+			if(balance_factor(q) >=2)
+			{
+				if(p->data < q->left->data)
+				{
+					q = rotateright(q);
+				}
+				else
+				{
+					q = leftright(q);
+				}
+			}
+			return q;
+		}
+		else
+		{
+			q->right = insert(q->right,p);
+			if(balance_factor(q) <= -2)
+			{
+				if(p->data > q->right->data)
+				{
+					q = rotateleft(q);
+				}
+				else
+				{
+					q = rightleft(q);
+				}
+			}
+		}
+		return q;
+
+	}
+	void create()
+	{
+		int n;
+		cout<<"\nEnter number of nodes = ";
+		cin>>n;
+		int x;
+		string value;
+		Node *p;
+		for(int i=0;i<n;i++)
+		{
+			cout<<"\nEnter data and value = ";
+			cin>>x;
+			cin.ignore(1);
+			getline(cin,value);
+			p = new Node(x,value);
+			root = insert(root,p);
+		}
+	}
+	void inorder(Node *p)
+	{
+		if(p==NULL)
+		{
+			return;
+		}
+		inorder(p->left);
+		cout<<p->data<<"\t";
+		inorder(p->right);
+	}
+	int find(int key)
+	{
+		int c =0;
+		Node *p=root;
+		while(p!=NULL)
+		{
+			c++;
+			if(key == p->data)
+			{
+
+				cout<<"Key Found";
+				return c;
+			}
+			else if(key < p->data)
+			{
+				p = p->left;
+			}
+			else
+			{
+				p = p->right;
+			}
+
+		}
+		cout<<"\Not found";
+		return c;
+	}
+};
+int main() {
+	//cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+	AVL tree;
+	tree.create();
+	cout<<"\nInorder = "<<endl;
+	tree.inorder(tree.root);
+	int x;
+	cout<<"\nEnter a key to search = ";
+	cin>>x;
+	x = tree.find(x);
+	cout<<"\nTotal comparisons = "<<x;
+	return 0;
+}
