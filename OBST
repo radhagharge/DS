@@ -1,0 +1,102 @@
+#include <iostream>
+#include<vector>
+using namespace std;
+class Node
+{
+public:
+	int cost,key;
+	Node()
+	{
+		cost =-1;
+		key = -1;
+	}
+	void scan()
+	{
+		cout<<"\nEnter key and probability = ";
+		cin>>key;
+		cin>>cost;
+	}
+};
+
+class Object
+{
+public:
+	Node **matrix;
+	int n;
+	Node *array;
+	Object()
+	{
+		cout<<"\nEnter number of nodes = ";
+		cin>>n;
+		array = new Node[n];
+		matrix = new Node*[n];
+		int i;
+		for(i=0;i<n;i++)
+		{
+			matrix[i] = new Node[n];
+		}
+	}
+//	int getmin(int k)
+//	{
+//		vector<Node> vct;
+//		int min = array[0].cost;
+//		for(int i=0;i<=k;i++)
+//		{
+//			vct.push_back(matrix[])
+//		}
+//	}
+	void create()
+	{
+		int i,j;
+		for(i=0;i<n;i++)
+		{
+			array[i].scan();
+		}
+		for(i=0;i<n;i++)
+		{
+			matrix[i][i] = array[i];
+		}
+		i=0,j=0;
+		int sum,k=0;
+		vector<Node> vct;
+		while(i!=n+1)
+		{
+			j = i+1;
+			k = 0;
+			sum = 0;
+			while(k!=i+1)
+			{
+				sum += array[k].cost;
+				k++;
+			}
+			k--;
+			for(int l=0;l<=k;l++)
+			{
+				if(matrix[k-l][k-l]!=-1)
+					vct.push_back(matrix[k-l][k-l]);
+			}
+
+			}
+			//sum+=getmin(k);
+		}
+
+	void show()
+	{
+		int i,j;
+		for(i=0;i<n;i++)
+		{
+			for(j=0;j<n;j++)
+			{
+				cout<<matrix[i][j].cost<<" ";
+			}
+			cout<<endl;
+		}
+	}
+};
+
+int main() {
+	Object var;
+	var.create();
+	var.show();
+	return 0;
+}
