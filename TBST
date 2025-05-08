@@ -1,0 +1,252 @@
+#include<iostream>
+using namespace std;
+class Node
+{
+	public:
+		bool lthread;
+		Node *left;
+		int data;
+		Node *right;
+		bool rthread;
+		Node(int x)
+		{
+			data = x;
+			left = NULL;
+			right = NULL;
+			lthread = false;
+			rthread = false;
+		}
+};
+class TBT
+{
+	public:
+		void insert(Node *root,Node *p)
+		{
+			int temp = 1;
+			while(temp)
+			{
+				if(p->data < root->data)
+				{
+					if(root->left==NULL || root->lthread == true)
+					{
+						p->left = root->left;
+						p->lthread = root->lthread;
+						root->left = p;
+						root->lthread = false;
+						p->right = root;
+						p->rthread = true;
+						temp =0;
+					}
+					else
+					{
+						root = root->left;
+					}
+				}
+				else
+				{
+					if(root->right==NULL || root->rthread ==true)
+					{
+						p->right = root->right;
+						p->rthread = root->rthread;
+						root->right = p;
+						p->left = root;
+						p->lthread = true;
+						root->rthread = false;
+						temp = 0;
+					}
+					else
+					{
+						root = root->right;
+					}
+				}
+			}
+		}
+	Node* create()
+	{
+		Node *root=NULL;
+		int n,x;
+		cout<<"\nEnter number of nodes you want to add = ";
+		cin>>n;
+		cout<<"\nEnter data for root node = ";
+		cin>>x;
+		root = new Node(x);
+		int i;
+		Node *p;
+		for(i=1;i<n;i++)
+		{
+			cout<<"Enter data for next node = ";
+			cin>>x;
+			p = new Node(x);
+			insert(root,p);
+		}
+		return root;
+	}
+	Node* leftmost(Node *p)
+	{
+		if(p==NULL)
+		{
+			return p;
+		}
+		while(p->left!=NULL && p->lthread!=true)
+		{
+			p = p->left;
+		}
+		return p;
+	}
+	void inorder(Node *root)
+	{
+		if(root==NULL)
+		{
+			cout<<"\nempty list";
+			return;
+		}
+		root = leftmost(root);
+		while(root!=NULL)
+		{
+			cout<<root->data<<" ";
+			if(root->rthread==true)
+			{
+				root = root->right;
+			}
+			else
+			{
+				root = leftmost(root->right);
+			}
+		}
+	}
+	Node *pre(Node *root)
+	{
+		if(root==NULL)
+		{
+			return root;
+		}
+		if(root->lthread==false && root->left!=NULL)
+		{
+			return root->left;
+		}
+		while(root->rthread==true)
+		{
+			root = root->right;
+		}
+		return root->right;
+	}
+	void preorder(Node *root)
+	{
+		while(root!=NULL)
+		{
+			cout<<root->data<<" ";
+			root = pre(root);
+		}
+	}
+	void del(Node *root,int x)
+	{
+		if(root==NULL)
+		{
+			cout<<"\nNo such data found";
+			return;
+		}
+		Node *par=NULL;
+		Node *cur = root;
+		int temp = 0;
+		while(root!=NULL)
+		{
+			if(root->data==x)
+			{
+				temp = 1;
+				break;
+			}
+			par = root;
+			if(x < root->data)
+			{
+				if(root->lthread==false)
+				{
+					root = root->left;
+				}
+				else
+				{
+					break;
+				}
+			}
+			else
+			{
+				if(root->rthread==false)
+				{
+					root = root->right;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		if(temp==0)
+		{
+			cout<<"\nNo such data found";
+			return;
+		}
+		if(root->rthread==true && root->lthread==true)
+		{
+			if(par==NULL)
+			{
+				cur = NULL;
+			}
+			else if(par->right==root)
+			{
+				par->right = root->right;
+				par->rthread = root->rthread;
+			}
+			else
+			{
+				par->left = root->left;
+				par->lthread = root->lthread;
+			}
+			delete root;
+		}
+		else if(root->lthread || root->lthread)
+		{
+			Node *child = root->rthread?root->right:root->left;
+			if(par==NULL)
+			{
+				cur = child;
+			}
+			else if(par->left==root)
+			{
+				par->left = child;
+			}
+			else
+			{
+				par->right = child;
+			}
+			Node *pred = getpredessor(root);
+			Node *suc = getsuccessor(root);
+			if(root->lthread==false)
+		}
+	}
+	Node *get(Node *root,int x)
+	{
+		while(root!=NULL)
+		{
+			if(root->data==x)
+			{
+				return root;
+			}
+			root = pre(root);
+		}
+		return root;
+	}
+};
+int main() {
+	//cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+	TBT tree;
+	Node *root=NULL;
+	root = tree.create();
+	cout<<"\nInorder = "<<endl;
+	tree.inorder(root);
+	cout<<"\nPreorder = "<<endl;
+	tree.preorder(root);
+	int x;
+	cout<<"\nEnter data to delete = ";
+	cin>>x;
+	tree.del(root,x);
+	return 0;
+}
